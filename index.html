@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>منبه النيون الذكي</title>
+  
+  <!-- أيقونة نيون مدمجة مسبقاً للشاشة الرئيسية -->
+  <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://w3.org' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23030712'/><circle cx='256' cy='270' r='160' fill='none' stroke='%2300f3ff' stroke-width='24'/><path d='M256 160 v110 h80' fill='none' stroke='%2300f3ff' stroke-width='20' stroke-linecap='round'/><path d='M120 100 L180 140 M392 100 L332 140 M256 60 V110' stroke='%2300f3ff' stroke-width='24' stroke-linecap='round'/></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://w3.org' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23030712'/><circle cx='256' cy='270' r='160' fill='none' stroke='%2300f3ff' stroke-width='24'/><path d='M256 160 v110 h80' fill='none' stroke='%2300f3ff' stroke-width='20' stroke-linecap='round'/><path d='M120 100 L180 140 M392 100 L332 140 M256 60 V110' stroke='%2300f3ff' stroke-width='24' stroke-linecap='round'/></svg>">
+
+  <style>
+    :root {
+      --bg-color: #030712;
+      --cyan-neon: #00f3ff;
+      --pink-neon: #ff0055;
+      --glass-bg: rgba(15, 23, 42, 0.65);
+      --glass-border: rgba(0, 243, 255, 0.3);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    body {
+      background-color: var(--bg-color);
+      background-image: 
+        radial-gradient(circle at 50% 20%, rgba(0, 243, 255, 0.15), transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(255, 0, 85, 0.1), transparent 40%);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+      border-radius: 24px;
+      padding: 30px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+    .install-bar {
+      background: #1e1b4b;
+      border: 1px dashed var(--cyan-neon);
+      padding: 10px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+    }
+    .btn-install {
+      background: var(--cyan-neon) !important;
+      color: #000 !important;
+      font-weight: 900 !important;
+      margin-bottom: 10px;
+      text-shadow: none !important;
+    }
+    .clock-display {
+      font-size: 3.2rem;
+      font-weight: bold;
+      text-shadow: 0 0 15px var(--cyan-neon);
+      margin: 15px 0;
+      font-family: monospace;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 10px;
+      border-radius: 16px;
+    }
+    .controls { display: flex; flex-direction: column; gap: 12px; }
+    .input-group { display: flex; flex-direction: column; text-align: right; gap: 5px; }
+    label { color: var(--cyan-neon); font-size: 0.85rem; }
+    input[type="time"], select {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--cyan-neon);
+      border-radius: 12px;
+      color: #fff; padding: 12px; text-align: center;
+    }
+    .btn {
+      background: transparent; border: 2px solid var(--cyan-neon);
+      color: var(--cyan-neon); padding: 12px; font-weight: bold;
+      border-radius: 12px; cursor: pointer; text-shadow: 0 0 5px var(--cyan-neon);
+      width: 100%;
+    }
+    .btn-stop { border-color: var(--pink-neon); color: var(--pink-neon); display: none; }
+    .status { margin-top: 15px; font-size: 0.9rem; color: #a0aec0; }
+    @keyframes violent-shake {
+      0%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(-4px, 4px); }
+      75% { transform: translate(4px, -4px); }
+    }
+    .alarm-active { animation: violent-shake 0.1s infinite; border-color: var(--pink-neon); }
+  </style>
+</head>
+<body>
+
+  <div class="container" id="alarmContainer">
+    <!-- شريط التثبيت السحري التلقائي -->
+    <div class="install-bar" id="installArea">
+      <p style="margin-bottom: 8px;">تطبيق المنبه جاهز للعمل على شاشتك بدون إنترنت 📲</p>
+      <button class="btn btn-install" id="installBtn">📥 ثبت التطبيق الآن على الشاشة</button>
+    </div>
+
+    <h2 style="color: var(--cyan-neon); font-size: 1.5rem;">منبه النيون الذكي</h2>
+    <div class="clock-display" id="clock">00:00:00</div>
+    
+    <div class="controls">
+      <div class="input-group">
+        <label for="alarmTime">وقت الاستيقاظ:</label>
+        <input type="time" id="alarmTime">
+      </div>
+      <div class="input-group">
+        <label for="soundSelect">نغمة المنبه السايرن:</label>
+        <select id="soundSelect">
+          <option value="cyber-annoying">🚨 صوت مزعج جداً</option>
+          <option value="digital-birds">🐦 عصافير نيون رقمية</option>
+        </select>
+      </div>
+      <button class="btn" id="setAlarmBtn">تشغيل المنبه</button>
+      <button class="btn btn-stop" id="stopAlarmBtn">إيقاف الصوت 🔕</button>
+    </div>
+    <div class="status" id="statusMsg">بانتظار تحديد وقت...</div>
+  </div>
+
+  <script>
+    const clockEl = document.getElementById('clock');
+    const statusMsg = document.getElementById('statusMsg');
+    const container = document.getElementById('alarmContainer');
+    const setAlarmBtn = document.getElementById('setAlarmBtn');
+    const stopAlarmBtn = document.getElementById('stopAlarmBtn');
+    const alarmTimeInput = document.getElementById('alarmTime');
+    const soundSelect = document.getElementById('soundSelect');
+    const installBtn = document.getElementById('installBtn');
+    const installArea = document.getElementById('installArea');
+    
+    let alarmTime = null;
+    let audioCtx = null;
+    let isRinging = false;
+    let activeInterval = null;
+    let deferredPrompt;
+
+    // كود اصطياد حدث التثبيت من المتصفح وحقنه بالزر المخصص
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installArea.style.display = 'block'; // اظهر الزر فوراً للمستخدم
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          installArea.style.display = 'none';
+        }
+        deferredPrompt = null;
+      } else {
+        // إذا كان المتصفح يمنع التثبيت التلقائي للملفات المحلية، سيظهر هذا الإرشاد السريع
+        alert("لتثبيت الأيقونة المضيئة فوراً:\n1. اضغط على الثلاث نقاط (القائمة) في متصفح كروم.\n2. اختر 'إضافة إلى الشاشة الرئيسية' (Add to Home Screen).\nستنزل الساعة على شاشتك بأيقونتها المستقلة!");
+      }
+    });
+
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      clockEl.textContent = `${hours}:${minutes}:${seconds}`;
+      if (alarmTime && `${hours}:${minutes}` === alarmTime && !isRinging) {
+        triggerAlarm();
+      }
+    }
+    setInterval(updateClock, 1000);
+
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    function triggerAlarm() {
+      isRinging = true;
+      container.classList.add('alarm-active');
+      stopAlarmBtn.style.display = 'block';
+      setAlarmBtn.style.display = 'none';
+      statusMsg.textContent = "🚨 اصحى! حان الوقت!";
+      
+      const soundType = soundSelect.value;
+      if (soundType === 'cyber-annoying') {
+        activeInterval = setInterval(() => {
+          let osc = audioCtx.createOscillator();
+          let gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(1000, audioCtx.currentTime); 
+          gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          osc.connect(gain); gain.connect(audioCtx.destination);
+          osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+        }, 200);
+      } else {
+        activeInterval = setInterval(() => {
+          let osc = audioCtx.createOscillator();
+          let gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(2600 + Math.random() * 400, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          osc.connect(gain); gain.connect(audioCtx.destination);
+          osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+        }, 120);
+      }
+    }
+
+    function stopAlarm() {
+      isRinging = false;
+      container.classList.remove('alarm-active');
+      stopAlarmBtn.style.display = 'none';
+      setAlarmBtn.style.display = 'block';
+      statusMsg.textContent = "تم إيقاف المنبه بنجاح.";
+      alarmTime = null;
+      if (activeInterval) clearInterval(activeInterval);
+    }
+
+    setAlarmBtn.addEventListener('click', () => {
+      initAudio();
+      if (!alarmTimeInput.value) return;
+      alarmTime = alarmTimeInput.value;
+      statusMsg.textContent = `⏰ مضبوط ليرن عند: ${alarmTime}`;
+    });
+    stopAlarmBtn.addEventListener('click', stopAlarm);
+
+    // كود الخدمة مدمج نصياً لتجاوز شروط المتصفح الصعبة
+    const blob = new Blob([`
+      self.addEventListener('fetch', function(e) {});
+    `], { type: 'application/javascript' });
+    const swUrl = URL.createObjectURL(blob);
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register(swUrl).catch(()=>{});
+    }
+  </script>
+</body>
+</html>
